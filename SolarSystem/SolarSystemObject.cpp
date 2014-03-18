@@ -1,51 +1,77 @@
 #include "SolarSystemObject.h"
 
-SSO::SolarSystemObject::SolarSystemObject(int aphelion, int perihelion, int a, float e, int speed, int radius, bool isometric, float sizeRatio, float speedRatio, float t0)
+SSO::SolarSystemObject::SolarSystemObject(int apoapsis, int periapsis, 
+	int a, float e, int speed, int radius, bool isometric, float sizeRatio, float speedRatio, float distanceRatio, float t0)
 {
-	this->aphelion = aphelion;
-	this->perihelion = perihelion;
+	SolarSystemObject(apoapsis, periapsis, a, e, speed, radius, t0);
+	this->Settings(speedRatio, sizeRatio, distanceRatio, isometric);
+}
+
+SSO::SolarSystemObject::SolarSystemObject(int apoapsis, int periapsis, 
+	int a, float e, int speed, int radius, float t0)
+{
+	this->apoapsis = apoapsis;
+	this->periapsis = periapsis;
 	this->a = a;
 	this->b = a*sqrt(1 - e*e);
 	this->l = 3.141592653 * (3 * (a + b) - sqrt((3 * a + b)*(a + 3 * b)));
 	this->e = e;
 	this->speed = speed;
 	this->radius = radius;
-	this->isometric = isometric;
 	this->t = t0;
 	this->Recalc(t0);
-	this->sizeRatio = sizeRatio;
-	this->speedRatio = speedRatio;
+	/*
+	this->isometric = true;
+	this->sizeRatio = 100;
+	this->speedRatio = 100;*/
 }
 
-
-int SSO::SolarSystemObject::getX() const
+int SSO::SolarSystemObject::GetX() const
 {
 	return this->x;
 }
 
-int SSO::SolarSystemObject::getY() const
+int SSO::SolarSystemObject::GetY() const
 {
 	return this->y;
 }
 
-int SSO::SolarSystemObject::getRadius() const
+int SSO::SolarSystemObject::GetRadius() const
 {
 	return this->projectionRadius;
 }
 
-float SSO::SolarSystemObject::getSpeedRatio() const
+float SSO::SolarSystemObject::GetSpeedRatio() const
 {
 	return this->speedRatio;
 }
 
-void SSO::SolarSystemObject::setSizeRatio(float ratio)
+void SSO::SolarSystemObject::SetSizeRatio(float ratio)
 {
 	this->sizeRatio = ratio;
 }
 
-void SSO::SolarSystemObject::setSpeedRatio(float ratio)
+void SSO::SolarSystemObject::SetSpeedRatio(float ratio)
 {
 	this->speedRatio = ratio;
+}
+
+void SSO::SolarSystemObject::SetDistanceRatio(float ratio)
+{
+	this->distanceRatio = ratio;
+}
+
+void SSO::SolarSystemObject::SetIsometric(bool isometric)
+{
+	this->isometric = isometric;
+}
+
+void SSO::SolarSystemObject::Settings(float speedRatio, float sizeRatio, float distanceRatio, bool isometric)
+{
+	this->SetSpeedRatio(speedRatio);
+	this->SetSizeRatio(sizeRatio);
+	this->SetDistanceRatio(distanceRatio);
+	this->SetIsometric(isometric);
 }
 
 int SSO::SolarSystemObject::Recalc(float t)
