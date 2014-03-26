@@ -3,233 +3,105 @@
 
 #include "windows.h"
 #include "windowsx.h"
+#include <tchar.h>
 #include <math.h>
 #include <wingdi.h>
 #include <vector>
 #include <map>
+#include <stdio.h>
 #include "SolarSystem.h"
 #include "DoubleBuffering.h"
-#include <stdio.h>
-
-#define IDC_MAIN_BUTTON_EXIT 300
-#define IDC_MAIN_BUTTON_SPEEDUP 205
-#define IDC_MAIN_BUTTON_SPEEDDOWN 206
+#include "decorations.h"
 
 HINSTANCE hinst;
 HWND hWindow;
 int ResX = GetSystemMetrics(SM_CXSCREEN);
 int ResY = GetSystemMetrics(SM_CYSCREEN);
 
-HWND hButtonExit, hButtonSpeedUp, hButtonSpeedDown;
-
-static PAINTSTRUCT PS;
-
-HDC		hDC,		//контекст окна
-		hCopyDC,	//контекст в памяти - все отрисовывается на нём
-		hBackGrDC;	//контекст с фоном
-
-RECT	rcClient,	//прямоугольник с клиентской областью
-		rcWindow,	//со всем окном
-		rcCurrent,	//текущий прямоугольник, куда рисуем
-		rcBackGr;	//с фоном
-
-HBITMAP hBmpBackGr,		//хэндл картинки-фона
-		hBmpMask,		//маска
-		hBmpCopyClient, //копия клиентской области
-		hBmpTemp;		//временный
-
-
 SS::SolarSystem *SolarSystem;
 DB::DoubleBuffering *DoubleBuffering;
 
-// по клику на кнопку Выход
-void OnClickButtonExit()
-{
-	PostMessage(hWindow, WM_QUIT, 0, 0);
-}
-// разбор WM_COMMAND (действия на щелчки по кнопкам)
-void OnCommand(HWND hWnd, int id, HWND hWndCtl, UINT codeNotify)
-{
-	if (hWndCtl == hButtonExit)
-	{
-		if ((codeNotify == BN_CLICKED) || (codeNotify == BN_DOUBLECLICKED))
-		{
-			OnClickButtonExit();
-		}
-	}
-	/*else
-	if (hWndCtl == hButtonSpeedUp)
-	{
-		if ((codeNotify == BN_CLICKED) || (codeNotify == BN_DOUBLECLICKED))
-		{
-			std::map<std::string, SS::Object>::iterator it = SolarSystem.begin(), it_end = SolarSystem.end();
-			for (; it != it_end; ++it)
-			{
-				it->second.Obj.setSpeedRatio(it->second.Obj.getSpeedRatio() + 5);
-			}
-		}
-	}
-	else
-	if (hWndCtl == hButtonSpeedDown)
-	{
-		if ((codeNotify == BN_CLICKED) || (codeNotify == BN_DOUBLECLICKED))
-		{
-			std::map<std::string, SS::Object>::iterator it = SolarSystem.begin(), it_end = SolarSystem.end();
-			for (; it != it_end; ++it)
-			{
-				it->second.Obj.setSpeedRatio(it->second.Obj.getSpeedRatio() - 5);
-				if (it->second.Obj.getSpeedRatio() < 0) it->second.Obj.setSpeedRatio(0);
-			}
-		}
-	}*/
-}
+/// <summary> Создание вектора с изображениями </summary>
+/// <param name = "path" Путь к папке с изображениями </param>
+std::vector<HBITMAP> SetOfPictures(std::wstring path);
+
+HDC GetEllipse(HWND hWindow);
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	switch (Message)
 	{
-	HANDLE_MSG(hWindow, WM_COMMAND, OnCommand);
-	//case WM_CREATE:
-	//	break;
+	case WM_COMMAND:
+		OnCommand(hWindow, (HWND)lParam, HIWORD(wParam), SolarSystem);
+		break;
+	case WM_CREATE:
+	{
+
+
+		
+	}
+		break;
 	case WM_SHOWWINDOW:
 	{
-		HDC hTempDC = GetDC(hWindow);				//контекст окна
-		hCopyDC = CreateCompatibleDC(hTempDC);		//контекст-прослойка
-		hBackGrDC = CreateCompatibleDC(hTempDC);	//для фона
-		//пустой битмап для хранения всй картины
-		hBmpCopyClient = CreateCompatibleBitmap(hTempDC, ResX, ResY);
-		hBmpBackGr = (HBITMAP)LoadImage(NULL, L"space.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-		SolarSystem = new SS::SolarSystem(hWindow, false, 1, 1, 1);
-		SolarSystem->Add("Sun", "Sun", 1, 1, 1, 0.016, 0, 100, 0,
-			(HBITMAP)LoadImage(NULL, L"sun2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		SolarSystem->Add("Mercury", "Sun", 69, 46, 100, 0.8, 47, 24, 0,
-			(HBITMAP)LoadImage(NULL, L"mercury1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		/*SolarSystem.Add("Venus", "Sun", 107, 108, 200, 0.8, 35, 60, 0,
-		(HBITMAP)LoadImage(NULL, L"venus1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		SolarSystem.Add("Earth", "Sun", 152, 147, 270, 0.8, 29, 63, 0,
-		(HBITMAP)LoadImage(NULL, L"venus1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		SolarSystem.Add("Moon", "Earth", 30, 40, 40, 0.8, 80, 8, 0,
-		(HBITMAP)LoadImage(NULL, L"venus1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		SolarSystem.Add("Mars", "Sun", 172, 172, 380, 0.8, 20, 63, 0,
-		(HBITMAP)LoadImage(NULL, L"venus1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		*/
+		DoubleBuffering = new DB::DoubleBuffering(hWindow, ResX, ResY);
+		DoubleBuffering->AddBackground((HBITMAP)LoadImage(NULL, L"space.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
 
-		//привязываем картинки к контекстам
-		std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = SolarSystem->theSystem.begin(), it_end = SolarSystem->theSystem.end();
-		for (; it != it_end; ++it)
-		{
-			hBmpTemp = (HBITMAP)SelectObject(it->second.hObjDC, it->second.hBmp);
-			if (hBmpTemp) DeleteObject(hBmpTemp);
-		}
-		hBmpTemp = (HBITMAP)SelectObject(hBackGrDC, hBmpBackGr);
-		if (hBmpTemp) DeleteObject(hBmpTemp);
-		hBmpTemp = (HBITMAP)SelectObject(hCopyDC, hBmpCopyClient);
-		if (hBmpTemp) DeleteObject(hBmpTemp);
-		//...
-		ReleaseDC(hWindow, hTempDC);//отпускаем контекст
+		SolarSystem = new SS::SolarSystem(hWindow, -1, 1, 1, 1);
 
+		SolarSystem->Add("Sun", "Sun", 0, 0, 0, 0, 0, 100, 0, SetOfPictures(_T(".\\Images\\Sun\\*.bmp")));
+		SolarSystem->Add("Mercury", "Sun", 69, 46, 100, 0.8, 47, 24, 0, SetOfPictures(_T(".\\Images\\Mercury\\*.bmp")));
+		SolarSystem->Add("Venus", "Sun", 107, 108, 200, 0.8, 35, 60, 0, SetOfPictures(_T(".\\Images\\Venus\\*.bmp")));
+		SolarSystem->Add("Earth", "Sun", 152, 147, 270, 0.8, 29, 63, 0, SetOfPictures(_T(".\\Images\\Earth\\*.bmp")));
+		SolarSystem->Add("Moon", "Earth", 30, 40, 40, 0.8, 80, 8, 0, SetOfPictures(_T(".\\Images\\Moon\\*.bmp")));
+		//SolarSystem->Add("Mars", "Sun", 172, 172, 380, 0.8, 20, 63, 0, SetOfPictures(_T(".\\Images\\_Sun\\*.bmp")));
 
+		DoubleBuffering->Release();
 		SolarSystem->Go();
-		break;
 	}
+		break;
 	case WM_REPAINT:
-		/**/
-		//что перерисовать
-		rcCurrent.left = 0;
-		rcCurrent.top = 0;
-		rcCurrent.right = ResX;
-		rcCurrent.bottom = ResY;
-		//обновить фон
-		StretchBlt(hCopyDC, 0, 0, ResX, ResY,
-				hBackGrDC, 0, 0, ResX, ResY,
-				SRCCOPY);
+	{
+		DoubleBuffering->BackgroundUpdate();
 
-		//копировать Меркурий
-		TransparentBlt(hCopyDC,
-					   SolarSystem->theSystem["Mercury"].GetX() + ResX / 2 - SolarSystem->theSystem["Mercury"].GetRadius()/2,
-					   SolarSystem->theSystem["Mercury"].GetY() + ResY / 2 - SolarSystem->theSystem["Mercury"].GetRadius()/2,
-					   SolarSystem->theSystem["Mercury"].GetRadius(),
-					   SolarSystem->theSystem["Mercury"].GetRadius(),
-					   SolarSystem->theSystem["Mercury"].hObjDC, 0, 0, 400, 400, RGB(0, 255, 0));
+		SS::SolarSystem::SolarSystemObject *temp;
+		temp = SolarSystem->Get("Sun");
+		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
+			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
+		
+		temp = SolarSystem->Get("Mercury");
+		DoubleBuffering->AddObject(ResX/2-temp->GetA(), ResY/2-temp->GetB(), temp->GetA()*2, temp->GetB()*2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
+		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
+			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
 
-		////копировать Венеру
-		//TransparentBlt(hCopyDC,
-		//			   SolarSystem["Venus"].Obj.getX() + ResX / 2 - SolarSystem["Venus"].Obj.getRadius()/2,
-		//			   SolarSystem["Venus"].Obj.getY() + ResY / 2 - SolarSystem["Venus"].Obj.getRadius()/2,
-		//			   SolarSystem["Venus"].Obj.getRadius(),
-		//			   SolarSystem["Venus"].Obj.getRadius(),
-		//			   SolarSystem["Venus"].hObjDC, 0, 0, 500, 500, RGB(0, 255, 0));
+		temp = SolarSystem->Get("Venus");
+		DoubleBuffering->AddObject(ResX / 2 - temp->GetA(), ResY / 2 - temp->GetB(), temp->GetA() * 2, temp->GetB() * 2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
+		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
+			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
 
+		temp = SolarSystem->Get("Earth");
+		DoubleBuffering->AddObject(ResX / 2 - temp->GetA(), ResY / 2 - temp->GetB(), temp->GetA() * 2, temp->GetB() * 2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
+		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
+			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
 
-		////копировать Юпитер
-		//TransparentBlt(hCopyDC,
-		//			   SolarSystem["Jupiter"].Obj.getX() + ResX / 2 - SolarSystem["Jupiter"].Obj.getRadius() / 2,
-		//			   SolarSystem["Jupiter"].Obj.getY() + ResY / 2 - SolarSystem["Jupiter"].Obj.getRadius() / 2,
-		//			   SolarSystem["Jupiter"].Obj.getRadius(),
-		//			   SolarSystem["Jupiter"].Obj.getRadius(),
-		//			   SolarSystem["Jupiter"].hObjDC, 0, 0, 500, 500, RGB(0, 255, 0));
-
-
-
-		////копировать Землю
-		//TransparentBlt(hCopyDC,
-		//			   SolarSystem["Earth"].Obj.getX() + ResX / 2 - SolarSystem["Earth"].Obj.getRadius()/2,
-		//			   SolarSystem["Earth"].Obj.getY() + ResY / 2 - SolarSystem["Earth"].Obj.getRadius()/2,
-		//			   SolarSystem["Earth"].Obj.getRadius(),
-		//			   SolarSystem["Earth"].Obj.getRadius(),
-		//			   SolarSystem["Earth"].hObjDC, 0, 0, 500, 500, RGB(0, 255, 0));
-
-
-		////копировать Луну
-		//TransparentBlt(hCopyDC,
-		//			   SolarSystem["Moon"].Obj.getX() + SolarSystem["Earth"].Obj.getX() + ResX / 2 - SolarSystem["Moon"].Obj.getRadius() / 2,
-		//			   SolarSystem["Moon"].Obj.getY() + SolarSystem["Earth"].Obj.getY() + ResY / 2 - SolarSystem["Moon"].Obj.getRadius() / 2,
-		//			   SolarSystem["Moon"].Obj.getRadius(),
-		//			   SolarSystem["Moon"].Obj.getRadius(),
-		//			   SolarSystem["Moon"].hObjDC, 0, 0, 500, 500, RGB(0, 255, 0));
-
-
-
-		////копировать Марс
-		//TransparentBlt(hCopyDC,
-		//			   SolarSystem["Mars"].Obj.getX() + ResX / 2 - SolarSystem["Mars"].Obj.getRadius()/2,
-		//			   SolarSystem["Mars"].Obj.getY() + ResY / 2 - SolarSystem["Mars"].Obj.getRadius()/2,
-		//			   SolarSystem["Mars"].Obj.getRadius(),
-		//			   SolarSystem["Mars"].Obj.getRadius(),
-		//			   SolarSystem["Mars"].hObjDC, 0, 0, 500, 500, RGB(0, 255, 0));
-
-
-		////копировать Солнце
-		TransparentBlt(hCopyDC,
-					   SolarSystem->theSystem["Sun"].GetX() + ResX / 2 - SolarSystem->theSystem["Sun"].GetRadius() / 2,
-					   SolarSystem->theSystem["Sun"].GetY() + ResY / 2 - SolarSystem->theSystem["Sun"].GetRadius() / 2,
-					   SolarSystem->theSystem["Sun"].GetRadius(),
-					   SolarSystem->theSystem["Sun"].GetRadius(),
-					   SolarSystem->theSystem["Sun"].hObjDC, 0, 0, 500, 500, RGB(0, 255, 0));
-
-
-		//посылаем WM_PAINT
-		InvalidateRect(hWindow, &rcCurrent, false);
-		/**/
+		temp = SolarSystem->Get("Moon");
+		DoubleBuffering->AddObject(ResX / 2 - temp->GetA(), ResY / 2 - temp->GetB(), temp->GetA() * 2, temp->GetB() * 2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
+		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
+			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
+		
+		
+		DoubleBuffering->Invalidate();
+	}
 		break;
 	case WM_PAINT:
-		;
-		{
-			hDC = BeginPaint(hWindow, &PS);
-			StretchBlt(hDC, PS.rcPaint.left, PS.rcPaint.top, PS.rcPaint.right, PS.rcPaint.bottom,
-					   hCopyDC, PS.rcPaint.left, PS.rcPaint.top, PS.rcPaint.right, PS.rcPaint.bottom,
-					  // SRCPAINT);
-					   SRCCOPY);
-			EndPaint(hWindow, &PS);
-		}
+	{
+		DoubleBuffering->Paint();
+	}
 		break;
 	case WM_DESTROY:
 		delete SolarSystem;
-		if (hBmpBackGr) DeleteObject(hBmpBackGr);
-		if (hBmpCopyClient) DeleteObject(hBmpCopyClient);
-		if (hBmpMask) DeleteObject(hBmpMask);
-		//if (hBmpMercury) DeleteObject(hBmpMercury);
-		if (hBmpTemp) DeleteObject(hBmpTemp);
+		delete DoubleBuffering;
+
 		PostQuitMessage(0);
 		break;
 	}
@@ -258,14 +130,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		(int)GetSystemMetrics(SM_CXSCREEN),
 		(int)GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
 	hWindow = hwnd;
-
-	hButtonExit = CreateWindowEx(NULL, L"BUTTON", L"Выход", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-								 ResX-150, 10, 100, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_EXIT, GetModuleHandle(NULL), NULL);
-	hButtonSpeedUp = CreateWindowEx(NULL, L"BUTTON", L"+", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-									ResX-150, 170,100, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
-	hButtonSpeedDown = CreateWindowEx(NULL, L"BUTTON", L"-", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-									  ResX-150, 130, 100, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
-
+	ButtonsInit(hWindow, ResX, ResY);
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
@@ -275,4 +140,39 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		DispatchMessage(&msg);
 	}
 	return msg.wParam;
+}
+
+std::vector<HBITMAP> SetOfPictures(std::wstring path)
+{
+	std::vector<HBITMAP> pictures;
+	std::wstring p;
+	//TCHAR buffer[MAX_PATH];
+	WIN32_FIND_DATA wfd;
+	HANDLE const hFind = FindFirstFileW(path.c_str(), &wfd);
+	//GetFullPathName(path.c_str(), MAX_PATH, buffer, 0);
+	if (INVALID_HANDLE_VALUE != hFind)
+	{
+		do
+		{
+			p = path.substr(0, path.find_last_of(L"/\\")+1) + std::wstring(wfd.cFileName);
+			pictures.push_back((HBITMAP)LoadImage(NULL, p.c_str(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
+		} while (FindNextFile(hFind, &wfd));
+	}
+	FindClose(hFind);
+	return pictures;
+}
+
+HDC GetEllipse(HWND hWindow)
+{
+	HDC hDC;
+	HBITMAP bmp1;
+	RECT rc;
+	GetClientRect(hWindow, &rc);
+	hDC = CreateCompatibleDC(GetDC(hWindow));
+	bmp1 = CreateCompatibleBitmap(hDC, rc.right - rc.left, rc.bottom - rc.top);
+	(HBITMAP)SelectObject(hDC, bmp1);
+	(HBRUSH)SelectObject(hDC, CreateSolidBrush(RGB(0, 0, 0)));
+	(HPEN)SelectObject(hDC, CreatePen(PS_SOLID, 8, RGB(255, 255, 255)));
+	Ellipse(hDC, 0, 0, rc.right - rc.left, rc.bottom - rc.top);
+	return hDC;
 }

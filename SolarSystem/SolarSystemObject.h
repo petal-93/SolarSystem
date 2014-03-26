@@ -1,6 +1,4 @@
-#ifdef _MSC_VER
 #pragma once
-#endif
 #ifndef _SOLAR_SYSTEM_OBJECT_
 #define _SOLAR_SYSTEM_OBJECT_
 #endif
@@ -19,13 +17,13 @@ namespace SSO
 		//перицентр
 		int periapsis;
 		//большая полуось
-		int a;
+		int origA, a;
 		//малая
-		int b;
+		int origB, b;
 		//периметр
 		float l;
 		//эксцентриситет
-		float e;
+		float origE, e;
 		//орбитальная скорость
 		int speed;
 		//средний радиус объекта
@@ -33,9 +31,8 @@ namespace SSO
 
 		//радиус изометрический
 		int projectionRadius;
-		//флаг изометрическая проекция/ вид сверху
-		bool isometric;
-
+		//изометрическая проекция/ вид сверху
+		float isometricRatio;
 		//коэффициент размера
 		float sizeRatio;
 		//коэффициент скорости
@@ -48,7 +45,8 @@ namespace SSO
 		int Recalc(float t);
 
 	public:
-		SolarSystemObject() :x(0), y(0), apoapsis(0), periapsis(0), a(0), e(0.1), speed(0), radius(0), isometric(true){};
+		SolarSystemObject() :x(0), y(0), apoapsis(0), periapsis(0), a(0), e(0.1), speed(0), radius(0),
+			sizeRatio(1), speedRatio(1), distanceRatio(1), isometricRatio(1){};
 		/// <summary> Конструктор </summary>
 		/// <param name = "apoapsis"> апоцентр </param>
 		/// <param name = "periapsis"> перицентр </param>
@@ -58,10 +56,10 @@ namespace SSO
 		/// <param name = "radius"> средний радиус объекта </param>
 		/// <param name = "sizeRatio"> пропорции размеров в процентах </param>
 		/// <param name = "speedRatio"> коэффициент скорости в процентах </param>
-		/// <param name = "distanceRatio" пропорции расстояний в процентах </param>
+		/// <param name = "distanceRatio"> пропорции расстояний в процентах </param>
 		/// <param name = "isometric"> производить пересчет координат и размеров в изометрической проекции </param>
 		SolarSystemObject(int apoapsis, int periapsis, int a, float e, int speed, int radius,
-						  bool isometric, float sizeRatio, float speedRatio, float distanceRatio, float t0);
+						  float isometricRatio, float sizeRatio, float speedRatio, float distanceRatio, float t0);
 		/// <summary> Конструктор </summary>
 		/// <param name = "apoapsis"> апоцентр </param>
 		/// <param name = "periapsis"> перицентр </param>
@@ -70,10 +68,15 @@ namespace SSO
 		/// <param name = "t0"> начальное положение (радиус-вектор [0, 2*pi]) </param> 
 		/// <param name = "radius"> средний радиус объекта </param>
 		SolarSystemObject(int apoapsis, int periapsis, int a, float e, int speed, int radius, float t0);
-		int GetX() const;
-		int GetY() const;
+		virtual int GetX() const;
+		virtual int GetY() const;
+		int GetA() const;
+		int GetB() const;
 		int GetRadius() const;
 		float GetSpeedRatio() const;
+		float GetSizeRatio() const;
+		float GetDistanceRatio() const;
+		float GetIsometricRatio() const;
 		/// <summary> Установить коэффицент скорости </summary>
 		/// <param name = "ratio"> коэффициент в процентах </param>
 		void SetSpeedRatio(float ratio);
@@ -84,14 +87,14 @@ namespace SSO
 		/// <param name = "ratio"> коэффициент в процентах </param>
 		void SetDistanceRatio(float ratio);
 		/// <Summary> Настройка проекции </summary>
-		/// <param name = "isometric"> производить пересчет координат и размеров в изометрической проекции </param>
-		void SetIsometric(bool isometric);
+		/// <param name = "ratio"> коэффициент </param>
+		void SetIsometricRatio(float ratio);
 		/// <summary> Изменение настроек </summary>
 		/// <param name = "speedRatio"> коэффициент скорости в процентах </param>
 		/// <param name = "sizeRatio"> коэффициент размера в процентах </param>
 		/// <param name = "distanceRatio"> коэффициент расстояния в процентах </param>
-		/// <param name = "isometric"> производить пересчет координат и размеров в изометрической проекции </param>
-		void Settings(float speedRatio, float sizeRatio, float distanceRatio, bool isometric);
+		/// <param name = "isometricRatio"> коэффициент </param>
+		void Settings(float speedRatio, float sizeRatio, float distanceRatio, float isometricRatio);
 
 		/// <summary> Пересчет координат </summary>
 		float Next();

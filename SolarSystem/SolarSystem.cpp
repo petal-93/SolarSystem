@@ -44,14 +44,14 @@ DWORD WINAPI SS::SolarSystem::SolarSystemThreadSync(LPVOID lpParam)
 SS::SolarSystem::SolarSystem()
 {
 	this->hWindow = NULL;
-	this->isometric = false;
+	this->isometricRatio = 1;
 	this->sizeRatio = this->speedRatio = this->distanceRatio = 1;
 }
 
-SS::SolarSystem::SolarSystem(HWND hWindow, bool isometric, float sizeRatio, float speedRatio, float distanceRatio)
+SS::SolarSystem::SolarSystem(HWND hWindow, float isometricRatio, float sizeRatio, float speedRatio, float distanceRatio)
 {
 	this->hWindow = hWindow;
-	this->isometric = isometric;
+	this->isometricRatio = isometricRatio;
 	this->sizeRatio = sizeRatio;
 	this->speedRatio = speedRatio;
 	this->distanceRatio = distanceRatio;
@@ -60,16 +60,23 @@ SS::SolarSystem::SolarSystem(HWND hWindow, bool isometric, float sizeRatio, floa
 void SS::SolarSystem::Add(std::string name, std::string nameFocusBody,
 	int apoapsis, int periapsis, int a, float e, int speed, int radius, float t0, HBITMAP hBmp)
 {
-	SS::SolarSystem::SolarSystemObject object(*this, this->hWindow, name, nameFocusBody, 
+	SS::SolarSystem::SolarSystemObject object(*this, name, nameFocusBody, 
 		apoapsis, periapsis, a, e, speed, radius, t0, hBmp);
+	this->Add(name, object);
+}
+
+void SS::SolarSystem::Add(std::string name, std::string nameFocusBody,
+	int apoapsis, int periapsis, int a, float e, int speed, int radius, float t0, std::vector<HBITMAP> hBmps)
+{
+	SS::SolarSystem::SolarSystemObject object(*this, name, nameFocusBody,
+		apoapsis, periapsis, a, e, speed, radius, t0, hBmps);
 	this->Add(name, object);
 }
 
 void SS::SolarSystem::Add(std::string name, SS::SolarSystem::SolarSystemObject object)
 {
 	SS::SolarSystem::theSystem[name] = object;
-
-	theSystem[name].Settings(this->speedRatio, this->sizeRatio, this->distanceRatio, this->isometric);
+	theSystem[name].Settings(this->speedRatio, this->sizeRatio, this->distanceRatio, this->isometricRatio);
 	if (theSystem.size() == 1)
 	{
 		theSystem[name].hThread = CreateThread(0, 0, SS::SolarSystem::SolarSystemThreadSync,
@@ -82,6 +89,12 @@ void SS::SolarSystem::Add(std::string name, SS::SolarSystem::SolarSystemObject o
 				&theSystem[name], CREATE_SUSPENDED, 0);
 }
 
+
+SS::SolarSystem::SolarSystemObject* SS::SolarSystem::Get(std::string name)
+{
+	return &(this->theSystem[name]);
+}
+
 void SS::SolarSystem::Go()
 {
 	this->hSemaphoreRecalc = CreateSemaphore(NULL, 0, this->theSystem.size() - 1, TEXT("SemaphoreForRecalc"));
@@ -89,6 +102,42 @@ void SS::SolarSystem::Go()
 	for (; it != it_end; ++it)
 	{
 		ResumeThread(it->second.hThread);
+	}
+}
+
+void SS::SolarSystem::SpeedInc(float ratioInc)
+{
+	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
+	for (; it != it_end; ++it)
+	{
+		it->second.SetSpeedRatio(it->second.GetSpeedRatio() + ratioInc);
+	}
+}
+
+void SS::SolarSystem::SizeInc(float ratioInc)
+{
+	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
+	for (; it != it_end; ++it)
+	{
+		it->second.SetSizeRatio(it->second.GetSizeRatio() + ratioInc);
+	}
+}
+
+void SS::SolarSystem::DistanceInc(float ratioInc)
+{
+	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
+	for (; it != it_end; ++it)
+	{
+		it->second.SetDistanceRatio(it->second.GetDistanceRatio() + ratioInc);
+	}
+}
+
+void SS::SolarSystem::IsometricAngleInc(float ratioInc)
+{
+	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
+	for (; it != it_end; ++it)
+	{
+		it->second.SetIsometricRatio(it->second.GetIsometricRatio() + ratioInc);
 	}
 }
 
@@ -107,20 +156,47 @@ SS::SolarSystem::~SolarSystem()
 
 }
 
-SS::SolarSystem::SolarSystemObject::SolarSystemObject(SS::SolarSystem &instance, HWND hWindow, std::string name, 
+SS::SolarSystem::SolarSystemObject::SolarSystemObject(SS::SolarSystem &instance, std::string name,
 	std::string nameFocusBody, int apoapsis, int periapsis, int a, float e, int speed, int radius, float t0, HBITMAP hBmp)
 	:SSO::SolarSystemObject(apoapsis, periapsis, a, e, speed, radius, 0)
 {
-	this->Settings(instance.speedRatio, instance.sizeRatio, instance.distanceRatio, instance.isometric);
+		this->Settings(instance.speedRatio, instance.sizeRatio, instance.distanceRatio, instance.isometricRatio);
+		this->instance = &instance;
+		this->name = name;
+		this->nameFocusBody = nameFocusBody;
+		this->curr = 0;
+		this->AddHBmp(hBmp);
+}
+
+SS::SolarSystem::SolarSystemObject::SolarSystemObject(SS::SolarSystem &instance, std::string name, 
+	std::string nameFocusBody, int apoapsis, int periapsis, int a, float e, int speed, int radius, float t0, std::vector<HBITMAP> hBmps)
+	:SSO::SolarSystemObject(apoapsis, periapsis, a, e, speed, radius, 0)
+{
+	this->Settings(instance.speedRatio, instance.sizeRatio, instance.distanceRatio, instance.isometricRatio);
 	this->instance = &instance;
 	this->name = name;
 	this->nameFocusBody = nameFocusBody;
-	this->hBmp = hBmp;
-	HDC hTempDC = GetDC(instance.hWindow);
-	this->hObjDC = CreateCompatibleDC(hTempDC);
+	this->curr = 0;
+	std::vector<HBITMAP>::iterator itB = hBmps.begin(), itE = hBmps.end();
+	for (; itB != itE; ++itB)
+		this->AddHBmp(*itB);
 }
 
-HANDLE SS::SolarSystem::SolarSystemObject::GetHThread()
+int SS::SolarSystem::SolarSystemObject::GetX() const
+{
+	return this->SSO::SolarSystemObject::GetX() +
+		this->instance->theSystem[this->nameFocusBody].SSO::SolarSystemObject::GetX() - 
+		this->SSO::SolarSystemObject::GetRadius()/2;
+}
+
+int SS::SolarSystem::SolarSystemObject::GetY() const
+{
+	return this->SSO::SolarSystemObject::GetY() +
+		this->instance->theSystem[this->nameFocusBody].SSO::SolarSystemObject::GetY() -
+		this->SSO::SolarSystemObject::GetRadius() / 2;
+}
+
+HANDLE SS::SolarSystem::SolarSystemObject::GetHThread() const
 {
 	return this->hThread;
 }
@@ -128,6 +204,42 @@ HANDLE SS::SolarSystem::SolarSystemObject::GetHThread()
 void SS::SolarSystem::SolarSystemObject::SetHThread(HANDLE hThread)
 {
 	this->hThread = hThread;
+}
+
+void SS::SolarSystem::SolarSystemObject::AddHBmp(HBITMAP hBmp)
+{
+	HDC hTempDC = GetDC(this->instance->hWindow);
+	this->hBmps.push_back(std::pair<HBITMAP, HDC>(hBmp, CreateCompatibleDC(hTempDC)));
+	HBITMAP hBmpTemp = (HBITMAP)SelectObject(this->hBmps.back().second, this->hBmps.back().first);
+	if (hBmpTemp) DeleteObject(hBmpTemp);
+}
+
+HDC SS::SolarSystem::SolarSystemObject::GetHDC()
+{
+	if (this->curr == this->hBmps.size()-1)
+		this->curr = 0;
+	else
+		this->curr++;
+	return this->hBmps.at(this->curr).second;
+}
+
+HBITMAP SS::SolarSystem::SolarSystemObject::GetHBmp() const
+{
+	return this->hBmps.at(this->curr).first;
+}
+
+int SS::SolarSystem::SolarSystemObject::GetBmpWidth() const
+{
+	BITMAP bmp;
+	GetObject(this->hBmps.at(this->curr).first, sizeof(bmp), &bmp);
+	return bmp.bmWidth;
+}
+
+int SS::SolarSystem::SolarSystemObject::GetBmpHeight() const
+{
+	BITMAP bmp;
+	GetObject(this->hBmps.at(this->curr).first, sizeof(bmp), &bmp);
+	return bmp.bmHeight;
 }
 
 //SS::SolarSystem::SolarSystemObject::~SolarSystemObject()
