@@ -43,7 +43,7 @@ int SSO::SolarSystemObject::GetA() const
 
 int SSO::SolarSystemObject::GetB() const
 {
-	return this ->a*sqrt(1 - e*e);
+	return this->a*sqrt(1 - e*e);
 }
 
 int SSO::SolarSystemObject::GetRadius() const
@@ -118,7 +118,7 @@ int SSO::SolarSystemObject::Recalc(float t)
 		this->t = t;
 		this->x = this->a * sin(t) * this->distanceRatio;
 		this->y = this->a * sqrt(1 - e*e) *cos(t) - this->distanceRatio;
-		this->projectionRadius = this->radius * this->sizeRatio;// *((cos(t) / 3.5) - (cos(t) / 3.5) * (1 - this->isometricRatio));
+		this->projectionRadius = this->radius * this->sizeRatio *(((cos(t) / 4) + 0.75) - ((cos(t) / 4) + 0.75)*this->isometricRatio);
 		return 0;
 }
 

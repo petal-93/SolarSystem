@@ -20,9 +20,9 @@
 
 extern HWND hButtonExit, hButtonSpeedUp, hButtonSpeedDown, hButtonSizeUp,
 hButtonSizeDown, hButtonDistanceUp, hButtonDistanceDown, hButtonIsometricUp,
-hButtonIsometricDown;
+hButtonIsometricDown, hEdit;
 // инициализация кнопок управления
-void ButtonsInit(HWND hWindow, int ResX, int ResY);
+void ButtonsInit(HWND hWindow, HINSTANCE hInstance, int ResX, int ResY);
 // по клику на кнопку Выход
 void OnClickButtonExit(HWND hWindow);
 // разбор WM_COMMAND (действия на щелчки по кнопкам)

@@ -70,8 +70,8 @@ namespace SSO
 		SolarSystemObject(int apoapsis, int periapsis, int a, float e, int speed, int radius, float t0);
 		virtual int GetX() const;
 		virtual int GetY() const;
-		int GetA() const;
-		int GetB() const;
+		virtual int GetA() const;
+		virtual int GetB() const;
 		int GetRadius() const;
 		float GetSpeedRatio() const;
 		float GetSizeRatio() const;

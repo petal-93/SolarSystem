@@ -15,6 +15,7 @@
 
 HINSTANCE hinst;
 HWND hWindow;
+
 int ResX = GetSystemMetrics(SM_CXSCREEN);
 int ResY = GetSystemMetrics(SM_CYSCREEN);
 
@@ -22,10 +23,9 @@ SS::SolarSystem *SolarSystem;
 DB::DoubleBuffering *DoubleBuffering;
 
 /// <summary> Создание вектора с изображениями </summary>
-/// <param name = "path" Путь к папке с изображениями </param>
 std::vector<HBITMAP> SetOfPictures(std::wstring path);
-
-HDC GetEllipse(HWND hWindow);
+void AddTrack(DB::DoubleBuffering*, SS::SolarSystem::SolarSystemObject*);
+void AddObject(DB::DoubleBuffering*, SS::SolarSystem::SolarSystemObject*);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -43,19 +43,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_SHOWWINDOW:
 	{
-
 		DoubleBuffering = new DB::DoubleBuffering(hWindow, ResX, ResY);
 		DoubleBuffering->AddBackground((HBITMAP)LoadImage(NULL, L"space.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-
-		SolarSystem = new SS::SolarSystem(hWindow, -1, 1, 1, 1);
-
+		SolarSystem = new SS::SolarSystem(hWindow, 1, 1, 1, 1);
 		SolarSystem->Add("Sun", "Sun", 0, 0, 0, 0, 0, 100, 0, SetOfPictures(_T(".\\Images\\Sun\\*.bmp")));
 		SolarSystem->Add("Mercury", "Sun", 69, 46, 100, 0.8, 47, 24, 0, SetOfPictures(_T(".\\Images\\Mercury\\*.bmp")));
 		SolarSystem->Add("Venus", "Sun", 107, 108, 200, 0.8, 35, 60, 0, SetOfPictures(_T(".\\Images\\Venus\\*.bmp")));
 		SolarSystem->Add("Earth", "Sun", 152, 147, 270, 0.8, 29, 63, 0, SetOfPictures(_T(".\\Images\\Earth\\*.bmp")));
 		SolarSystem->Add("Moon", "Earth", 30, 40, 40, 0.8, 80, 8, 0, SetOfPictures(_T(".\\Images\\Moon\\*.bmp")));
-		//SolarSystem->Add("Mars", "Sun", 172, 172, 380, 0.8, 20, 63, 0, SetOfPictures(_T(".\\Images\\_Sun\\*.bmp")));
-
 		DoubleBuffering->Release();
 		SolarSystem->Go();
 	}
@@ -63,33 +58,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	case WM_REPAINT:
 	{
 		DoubleBuffering->BackgroundUpdate();
-
 		SS::SolarSystem::SolarSystemObject *temp;
-		temp = SolarSystem->Get("Sun");
-		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
-			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
-		
-		temp = SolarSystem->Get("Mercury");
-		DoubleBuffering->AddObject(ResX/2-temp->GetA(), ResY/2-temp->GetB(), temp->GetA()*2, temp->GetB()*2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
-		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
-			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
-
-		temp = SolarSystem->Get("Venus");
-		DoubleBuffering->AddObject(ResX / 2 - temp->GetA(), ResY / 2 - temp->GetB(), temp->GetA() * 2, temp->GetB() * 2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
-		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
-			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
-
-		temp = SolarSystem->Get("Earth");
-		DoubleBuffering->AddObject(ResX / 2 - temp->GetA(), ResY / 2 - temp->GetB(), temp->GetA() * 2, temp->GetB() * 2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
-		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
-			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
-
-		temp = SolarSystem->Get("Moon");
-		DoubleBuffering->AddObject(ResX / 2 - temp->GetA(), ResY / 2 - temp->GetB(), temp->GetA() * 2, temp->GetB() * 2, GetEllipse(hWindow), ResX, ResY, RGB(0, 255, 0));
-		DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
-			temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
-		
-		
+		while (temp = SolarSystem->Get())
+		{
+			AddTrack(DoubleBuffering, temp);
+			AddObject(DoubleBuffering, temp);
+		}
 		DoubleBuffering->Invalidate();
 	}
 		break;
@@ -130,7 +104,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		(int)GetSystemMetrics(SM_CXSCREEN),
 		(int)GetSystemMetrics(SM_CYSCREEN), NULL, NULL, hInstance, NULL);
 	hWindow = hwnd;
-	ButtonsInit(hWindow, ResX, ResY);
+	ButtonsInit(hWindow, hInstance, ResX, ResY);
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
@@ -162,7 +136,7 @@ std::vector<HBITMAP> SetOfPictures(std::wstring path)
 	return pictures;
 }
 
-HDC GetEllipse(HWND hWindow)
+void AddTrack(DB::DoubleBuffering *DoubleBuffering, SS::SolarSystem::SolarSystemObject *temp)
 {
 	HDC hDC;
 	HBITMAP bmp1;
@@ -172,7 +146,17 @@ HDC GetEllipse(HWND hWindow)
 	bmp1 = CreateCompatibleBitmap(hDC, rc.right - rc.left, rc.bottom - rc.top);
 	(HBITMAP)SelectObject(hDC, bmp1);
 	(HBRUSH)SelectObject(hDC, CreateSolidBrush(RGB(0, 0, 0)));
-	(HPEN)SelectObject(hDC, CreatePen(PS_SOLID, 8, RGB(255, 255, 255)));
-	Ellipse(hDC, 0, 0, rc.right - rc.left, rc.bottom - rc.top);
-	return hDC;
+	(HPEN)SelectObject(hDC, CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
+	Ellipse(hDC, 0, 0, temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2);
+	DoubleBuffering->AddObject(temp->GetA() + ResX / 2, temp->GetB() + ResY / 2,
+			temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2, hDC,
+			temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2, RGB(0, 255, 0));
+	DeleteObject(hDC);
+	DeleteObject(bmp1);
+}
+
+void AddObject(DB::DoubleBuffering *DoubleBuffering, SS::SolarSystem::SolarSystemObject *temp)
+{
+	DoubleBuffering->AddObject(temp->GetX() + ResX / 2, temp->GetY() + ResY / 2, temp->GetRadius(),
+		temp->GetRadius(), temp->GetHDC(), temp->GetBmpWidth(), temp->GetBmpHeight(), RGB(0, 255, 0));
 }

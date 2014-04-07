@@ -4,26 +4,28 @@ HWND hButtonExit, hButtonSpeedUp, hButtonSpeedDown, hButtonSizeUp,
 hButtonSizeDown, hButtonDistanceUp, hButtonDistanceDown, hButtonIsometricUp,
 hButtonIsometricDown;
 
-void ButtonsInit(HWND hWindow, int ResX, int RexY)
+void ButtonsInit(HWND hWindow, HINSTANCE hInstance, int ResX, int RexY)
 {
 	hButtonExit = CreateWindowEx(NULL, L"BUTTON", L"Выход", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 150, 10, 100, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_EXIT, GetModuleHandle(NULL), NULL);
+		ResX - 150, 10, 100, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_EXIT, GetModuleHandle(NULL), NULL);
 	hButtonSpeedUp = CreateWindowEx(NULL, L"BUTTON", L"+", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 100, 60, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
+		ResX - 100, 60, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
 	hButtonSpeedDown = CreateWindowEx(NULL, L"BUTTON", L"-", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 150, 60, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
+		ResX - 150, 60, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
 	hButtonSizeUp = CreateWindowEx(NULL, L"BUTTON", L"+", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 100, 110, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
+		ResX - 100, 110, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
 	hButtonSizeDown = CreateWindowEx(NULL, L"BUTTON", L"-", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 150, 110, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
+		ResX - 150, 110, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
 	hButtonDistanceUp = CreateWindowEx(NULL, L"BUTTON", L"+", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 100, 160, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
+		ResX - 100, 160, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
 	hButtonDistanceDown = CreateWindowEx(NULL, L"BUTTON", L"-", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 150, 160, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
+		ResX - 150, 190, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
 	hButtonIsometricUp = CreateWindowEx(NULL, L"BUTTON", L"+", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 100, 210, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
+		ResX - 100, 210, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDUP, GetModuleHandle(NULL), NULL);
 	hButtonIsometricDown = CreateWindowEx(NULL, L"BUTTON", L"-", WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-		ResX - 150, 210, 50, 50, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
+		ResX - 150, 240, 20, 20, hWindow, (HMENU)IDC_MAIN_BUTTON_SPEEDDOWN, GetModuleHandle(NULL), NULL);
+	
+	HWND hEdit = CreateWindow(L"Edit", NULL, WS_BORDER | WS_CHILD | WS_VISIBLE | NULL | NULL, 10, 10, 200, 20, hWindow, NULL, hInstance, 0);
 }
 // по клику на кнопку Выход
 void OnClickButtonExit(HWND hWindow)

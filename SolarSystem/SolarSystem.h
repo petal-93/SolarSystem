@@ -47,6 +47,7 @@ namespace SS
 		float sizeRatio, speedRatio, distanceRatio, isometricRatio;
 		// ассоциативный массив с объектами
 		std::map<std::string, SS::SolarSystem::SolarSystemObject> theSystem;
+		std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator curr;
 	public:
 		/// <summary> Конструктор </summary>
 		SolarSystem();
@@ -87,6 +88,8 @@ namespace SS
 		/// <summary> Получить объект </summary>
 		/// <param name = "name" имя объекта </param>
 		SS::SolarSystem::SolarSystemObject* Get(std::string name);
+		/// <summary> Получить объект </summary>
+		SS::SolarSystem::SolarSystemObject* Get();
 		/// <summary> Старт потоков </summary>
 		void Go();
 		/// <summary> Изменение скорости </summary>
@@ -151,6 +154,8 @@ namespace SS
 		int GetX() const;
 		/// <summary> Получить координату по Oy </summary>
 		int GetY() const;
+		int GetA() const;
+		int GetB() const;
 		/// <summary> Получить хендл потока </summary>
 		HANDLE GetHThread() const;
 		/// <summary> Записать хендл потока </summary>

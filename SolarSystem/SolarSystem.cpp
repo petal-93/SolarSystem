@@ -82,8 +82,8 @@ void SS::SolarSystem::Add(std::string name, SS::SolarSystem::SolarSystemObject o
 		theSystem[name].hThread = CreateThread(0, 0, SS::SolarSystem::SolarSystemThreadSync,
 				&theSystem[name], CREATE_SUSPENDED, 0);
 		this->SyncThreadId = GetThreadId(theSystem[name].hThread);
+		this->curr = theSystem.begin();
 	}
-		
 	else
 		theSystem[name].hThread = CreateThread(0, 0, SS::SolarSystem::SolarSystemThread, 
 				&theSystem[name], CREATE_SUSPENDED, 0);
@@ -93,6 +93,16 @@ void SS::SolarSystem::Add(std::string name, SS::SolarSystem::SolarSystemObject o
 SS::SolarSystem::SolarSystemObject* SS::SolarSystem::Get(std::string name)
 {
 	return &(this->theSystem[name]);
+}
+
+SS::SolarSystem::SolarSystemObject* SS::SolarSystem::Get()
+{
+	if (this->curr == this->theSystem.end())
+	{
+		this->curr = theSystem.begin();
+		return NULL;
+	}
+	return &((*this->curr++).second);
 }
 
 void SS::SolarSystem::Go()
@@ -194,6 +204,19 @@ int SS::SolarSystem::SolarSystemObject::GetY() const
 	return this->SSO::SolarSystemObject::GetY() +
 		this->instance->theSystem[this->nameFocusBody].SSO::SolarSystemObject::GetY() -
 		this->SSO::SolarSystemObject::GetRadius() / 2;
+}
+
+int SS::SolarSystem::SolarSystemObject::GetA() const
+{
+	return this->instance->theSystem[this->nameFocusBody].SSO::SolarSystemObject::GetX() -
+		this->SSO::SolarSystemObject::GetA();
+}
+
+int SS::SolarSystem::SolarSystemObject::GetB() const
+{
+	return this->instance->theSystem[this->nameFocusBody].SSO::SolarSystemObject::GetY() -
+		this->SSO::SolarSystemObject::GetB();
+		
 }
 
 HANDLE SS::SolarSystem::SolarSystemObject::GetHThread() const
