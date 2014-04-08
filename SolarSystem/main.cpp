@@ -36,17 +36,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_CREATE:
 	{
-
-
-		
 	}
 		break;
 	case WM_SHOWWINDOW:
 	{
 		DoubleBuffering = new DB::DoubleBuffering(hWindow, ResX, ResY);
 		DoubleBuffering->AddBackground((HBITMAP)LoadImage(NULL, L"space.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		SolarSystem = new SS::SolarSystem(hWindow, 0.16, 0.8, 4.0, 2.0);
-		SolarSystem->Add("Sun", "Sun", 0, 0, 0, 0, 0, 100, 0, SetOfPictures(_T(".\\Images\\Sun\\*.bmp")));
+		SolarSystem = new SS::SolarSystem(hWindow, 0.16, 0.8, 10.0, 2.0);
+		SolarSystem->Add("Sun", "Sun", 0, 0, 0, 0, 1, 100, 1, SetOfPictures(_T(".\\Images\\Sun\\*.bmp")));
 		SolarSystem->Add("Mercury", "Sun", 69, 46, 100, 0.8, 47, 24, 0, SetOfPictures(_T(".\\Images\\Mercury\\*.bmp")));
 		SolarSystem->Add("Venus", "Sun", 107, 108, 200, 0.8, 35, 60, 0, SetOfPictures(_T(".\\Images\\Venus\\*.bmp")));
 		SolarSystem->Add("Earth", "Sun", 152, 147, 270, 0.8, 29, 63, 0, SetOfPictures(_T(".\\Images\\Earth\\*.bmp")));
