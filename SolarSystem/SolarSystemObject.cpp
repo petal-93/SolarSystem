@@ -83,6 +83,8 @@ void SSO::SolarSystemObject::SetSpeedRatio(float ratio)
 
 void SSO::SolarSystemObject::SetDistanceRatio(float ratio)
 {
+	this->a = this->origA * ratio;
+	this->b = this->a *sqrt(1 - e*e);
 	this->distanceRatio = ratio;
 }
 
@@ -90,10 +92,10 @@ void SSO::SolarSystemObject::SetIsometricRatio(float ratio)
 {
 	this->isometricRatio = ratio;
 	this->e = this->origE + this->isometricRatio;
-	if (this->e <= 0.0001)
-		this->e = 0.01;
-	if (this->e >= 0.9999)
-		this->e = 0.8;
+	//if (this->e <= 0.0001)
+	//	this->e = 0.01;
+	//if (this->e >= 0.9999)
+	//	this->e = 0.8;
 }
 
 void SSO::SolarSystemObject::Settings(float speedRatio, float sizeRatio, float distanceRatio, float isometricRatio)
@@ -111,13 +113,14 @@ int SSO::SolarSystemObject::Recalc(float t)
 			t = 0.000000001;
 		}
 		this->e = this->origE + this->isometricRatio;
-		if (this->e <= 0.0001)
-			this->e = 0.0001;
-		if (this->e >= 0.9999)
-			this->e = 0.9999;
+		//if (this->e <= 0.0001)
+		//	this->e = 0.0001;
+		//if (this->e >= 0.9999)
+		//	this->e = 0.9999;
 		this->t = t;
-		this->x = this->a * sin(t) * this->distanceRatio;
-		this->y = this->a * sqrt(1 - e*e) *cos(t) - this->distanceRatio;
+		this->x = this->origA * sin(t) * this->distanceRatio;
+		//this->y = this->a * sqrt(1 - e*e) *cos(t) - this->distanceRatio;
+		this->y = this->origA * sqrt(1 - e*e) *cos(t) * this->distanceRatio;
 		this->projectionRadius = this->radius * this->sizeRatio *(((cos(t) / 4) + 0.75) - ((cos(t) / 4) + 0.75)*this->isometricRatio);
 		return 0;
 }

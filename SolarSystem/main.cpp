@@ -45,7 +45,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	{
 		DoubleBuffering = new DB::DoubleBuffering(hWindow, ResX, ResY);
 		DoubleBuffering->AddBackground((HBITMAP)LoadImage(NULL, L"space.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-		SolarSystem = new SS::SolarSystem(hWindow, 1, 1, 1, 1);
+		SolarSystem = new SS::SolarSystem(hWindow, 0.16, 0.8, 4.0, 2.0);
 		SolarSystem->Add("Sun", "Sun", 0, 0, 0, 0, 0, 100, 0, SetOfPictures(_T(".\\Images\\Sun\\*.bmp")));
 		SolarSystem->Add("Mercury", "Sun", 69, 46, 100, 0.8, 47, 24, 0, SetOfPictures(_T(".\\Images\\Mercury\\*.bmp")));
 		SolarSystem->Add("Venus", "Sun", 107, 108, 200, 0.8, 35, 60, 0, SetOfPictures(_T(".\\Images\\Venus\\*.bmp")));
@@ -70,6 +70,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 	{
 		DoubleBuffering->Paint();
+		UpdateValues(SolarSystem);
 	}
 		break;
 	case WM_DESTROY:

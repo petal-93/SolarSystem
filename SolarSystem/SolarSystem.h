@@ -86,7 +86,7 @@ namespace SS
 		/// <param name = "object"> объект </param>
 		void Add(std::string name, SS::SolarSystem::SolarSystemObject object);
 		/// <summary> Получить объект </summary>
-		/// <param name = "name" имя объекта </param>
+		/// <param name = "name"> имя объекта </param>
 		SS::SolarSystem::SolarSystemObject* Get(std::string name);
 		/// <summary> Получить объект </summary>
 		SS::SolarSystem::SolarSystemObject* Get();
@@ -104,6 +104,14 @@ namespace SS
 		/// <summary> Изменение наклона проекции </summary>
 		/// <param name = "ratioInc" коэффициент </param>
 		void IsometricAngleInc(float ratioInc);
+		/// <summary> Получить коэффициент скорости </summary>
+		float GetSpeedRatio();
+		/// <summary> Получить коэффициент размеров </summary>
+		float GetSizeRatio();
+		/// <summary> Получить коэффициент расстояний </summary>
+		float GetDistanceRatio();
+		/// <summary> Получить коэффициент проекции </summary>
+		float GetIsometricRatio();
 		~SolarSystem();
 	};
 

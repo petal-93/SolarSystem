@@ -117,38 +117,63 @@ void SS::SolarSystem::Go()
 
 void SS::SolarSystem::SpeedInc(float ratioInc)
 {
+	this->speedRatio += ratioInc;
 	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
 	for (; it != it_end; ++it)
 	{
-		it->second.SetSpeedRatio(it->second.GetSpeedRatio() + ratioInc);
+		//it->second.SetSpeedRatio(it->second.GetSpeedRatio() + ratioInc);
+		it->second.SetSpeedRatio(this->speedRatio);
 	}
 }
 
 void SS::SolarSystem::SizeInc(float ratioInc)
 {
+	this->sizeRatio += ratioInc;
 	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
 	for (; it != it_end; ++it)
 	{
-		it->second.SetSizeRatio(it->second.GetSizeRatio() + ratioInc);
+		it->second.SetSizeRatio(this->sizeRatio);
 	}
 }
 
 void SS::SolarSystem::DistanceInc(float ratioInc)
 {
+	this->distanceRatio += ratioInc;
 	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
 	for (; it != it_end; ++it)
 	{
-		it->second.SetDistanceRatio(it->second.GetDistanceRatio() + ratioInc);
+		it->second.SetDistanceRatio(this->distanceRatio);
 	}
 }
 
 void SS::SolarSystem::IsometricAngleInc(float ratioInc)
 {
+	this->isometricRatio += ratioInc;
 	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
 	for (; it != it_end; ++it)
 	{
-		it->second.SetIsometricRatio(it->second.GetIsometricRatio() + ratioInc);
+		it->second.SetIsometricRatio(this->isometricRatio);
 	}
+}
+
+float SS::SolarSystem::GetSpeedRatio()
+{
+	return this->speedRatio;
+}
+
+float SS::SolarSystem::GetSizeRatio()
+{
+	return this->sizeRatio;
+}
+
+float SS::SolarSystem::GetDistanceRatio()
+{
+	return this->distanceRatio;
+}
+
+float SS::SolarSystem::GetIsometricRatio()
+{
+	return this->isometricRatio;
 }
 
 SS::SolarSystem::~SolarSystem()
