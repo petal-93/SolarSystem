@@ -20,7 +20,7 @@ int ResX = GetSystemMetrics(SM_CXSCREEN);
 int ResY = GetSystemMetrics(SM_CYSCREEN);
 
 SS::SolarSystem *SolarSystem;
-DB::DoubleBuffering *DoubleBuffering;
+DB::DoubleBuffering *DoubleBuffering = NULL;
 
 /// <summary> Создание вектора с изображениями </summary>
 std::vector<HBITMAP> SetOfPictures(std::wstring path);
@@ -62,6 +62,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 			AddObject(DoubleBuffering, temp);
 		}
 		DoubleBuffering->Invalidate();
+		delete temp;
 	}
 		break;
 	case WM_PAINT:
@@ -72,7 +73,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_DESTROY:
 		delete SolarSystem;
-		delete DoubleBuffering;
+		//delete DoubleBuffering;
 
 		PostQuitMessage(0);
 		break;
@@ -136,21 +137,26 @@ std::vector<HBITMAP> SetOfPictures(std::wstring path)
 
 void AddTrack(DB::DoubleBuffering *DoubleBuffering, SS::SolarSystem::SolarSystemObject *temp)
 {
-	HDC hDC;
-	HBITMAP bmp1;
 	RECT rc;
 	GetClientRect(hWindow, &rc);
-	hDC = CreateCompatibleDC(GetDC(hWindow));
-	bmp1 = CreateCompatibleBitmap(hDC, rc.right - rc.left, rc.bottom - rc.top);
+	HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
+	HPEN pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+	HDC hDC = CreateCompatibleDC(GetDC(hWindow));
+	HBITMAP bmp1 = CreateCompatibleBitmap(hDC, rc.right - rc.left, rc.bottom - rc.top);
+
 	(HBITMAP)SelectObject(hDC, bmp1);
-	(HBRUSH)SelectObject(hDC, CreateSolidBrush(RGB(0, 0, 0)));
-	(HPEN)SelectObject(hDC, CreatePen(PS_SOLID, 1, RGB(255, 255, 255)));
+	(HBRUSH)SelectObject(hDC, brush);
+	(HPEN)SelectObject(hDC, pen);
+
 	Ellipse(hDC, 0, 0, temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2);
 	DoubleBuffering->AddObject(temp->GetA() + ResX / 2, temp->GetB() + ResY / 2,
 			temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2, hDC,
 			temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2, RGB(0, 255, 0));
-	DeleteObject(hDC);
-	DeleteObject(bmp1);
+
+	DeleteDC(hDC);
+	DeleteBitmap(bmp1);
+	DeletePen(pen);
+	DeleteBrush(brush);
 }
 
 void AddObject(DB::DoubleBuffering *DoubleBuffering, SS::SolarSystem::SolarSystemObject *temp)

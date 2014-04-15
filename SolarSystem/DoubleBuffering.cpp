@@ -26,7 +26,7 @@ void DB::DoubleBuffering::AddBackground(HBITMAP hBmp)
 	hBmpTemp = (HBITMAP)SelectObject(hBackGrDC, hBmpBackGr);
 	if (hBmpTemp) DeleteObject(hBmpTemp);
 	hBmpTemp = (HBITMAP)SelectObject(hCopyDC, hBmpCopyClient);
-	if (hBmpTemp) DeleteObject(hBmpTemp);
+	if (hBmpTemp) DeleteObject(hBmpTemp); 
 }
 
 void DB::DoubleBuffering::Release()
@@ -64,9 +64,19 @@ void DB::DoubleBuffering::Paint()
 		hCopyDC, PS.rcPaint.left, PS.rcPaint.top, PS.rcPaint.right, PS.rcPaint.bottom,
 		//SRCPAINT);
 		SRCCOPY);
+		
+	//BitBlt(hDC, PS.rcPaint.left, PS.rcPaint.top, PS.rcPaint.right, PS.rcPaint.bottom,
+		//hCopyDC, PS.rcPaint.left, PS.rcPaint.top, SRCCOPY);
 	EndPaint(hWindow, &PS);
 }
 
 DB::DoubleBuffering::~DoubleBuffering()
 {
+	DeleteDC(hDC);
+	DeleteDC(hCopyDC);
+	DeleteDC(hBackGrDC);
+	DeleteObject(hBmpBackGr);
+	DeleteObject(hBmpMask); 
+	DeleteObject(hBmpCopyClient);
+	DeleteObject(hBmpTemp);
 }
