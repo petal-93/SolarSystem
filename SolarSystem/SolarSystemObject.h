@@ -72,6 +72,7 @@ namespace SSO
 		virtual int GetY() const;
 		virtual int GetA() const;
 		virtual int GetB() const;
+		virtual int GetApoapsis() const;
 		int GetRadius() const;
 		float GetSpeedRatio() const;
 		float GetSizeRatio() const;

@@ -28,7 +28,8 @@ SSO::SolarSystemObject::SolarSystemObject(int apoapsis, int periapsis,
 
 int SSO::SolarSystemObject::GetX() const
 {
-	return this->x;
+	/*!!*/
+	return this->x + this->apoapsis;
 }
 
 int SSO::SolarSystemObject::GetY() const
@@ -44,6 +45,11 @@ int SSO::SolarSystemObject::GetA() const
 int SSO::SolarSystemObject::GetB() const
 {
 	return this->a*sqrt(1 - e*e);
+}
+
+int SSO::SolarSystemObject::GetApoapsis() const
+{
+	return this->apoapsis;
 }
 
 int SSO::SolarSystemObject::GetRadius() const

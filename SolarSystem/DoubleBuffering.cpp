@@ -65,6 +65,7 @@ void DB::DoubleBuffering::Paint()
 		//SRCPAINT);
 		SRCCOPY);
 		
+
 	//BitBlt(hDC, PS.rcPaint.left, PS.rcPaint.top, PS.rcPaint.right, PS.rcPaint.bottom,
 		//hCopyDC, PS.rcPaint.left, PS.rcPaint.top, SRCCOPY);
 	EndPaint(hWindow, &PS);

@@ -149,7 +149,9 @@ void AddTrack(DB::DoubleBuffering *DoubleBuffering, SS::SolarSystem::SolarSystem
 	(HPEN)SelectObject(hDC, pen);
 
 	Ellipse(hDC, 0, 0, temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2);
-	DoubleBuffering->AddObject(temp->GetA() + ResX / 2, temp->GetB() + ResY / 2,
+	DoubleBuffering->AddObject(
+			temp->GetA() + temp->::SSO::SolarSystemObject::GetApoapsis() + ResX / 2,
+			temp->GetB() + ResY / 2,
 			temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2, hDC,
 			temp->::SSO::SolarSystemObject::GetA() * 2, temp->::SSO::SolarSystemObject::GetB() * 2, RGB(0, 255, 0));
 
