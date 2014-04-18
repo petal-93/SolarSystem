@@ -21,7 +21,7 @@
 #define WM_REPAINT WM_USER+100
 #define WM_RECALC_OK WM_USER+101
 #define WM_EXIT_THREAD WM_USER+102
-
+#define WM_STOP WM_USER+103
 
 namespace SS
 {
@@ -38,7 +38,7 @@ namespace SS
 		// семафор объявляет начало пересчета 
 		HANDLE hSemaphoreRecalc;
 		// семафор  
-		HANDLE hSemaphoreStop;
+		HANDLE hEventStop;
 		// хендл окна, нужен для отправки в него сообщения о завершении пересчета
 		HWND hWindow;
 		// ИД синхронизирующего потока, нужен для отправки в него сообщений из остальных потоков
@@ -112,6 +112,7 @@ namespace SS
 		float GetDistanceRatio();
 		/// <summary> Получить коэффициент проекции </summary>
 		float GetIsometricRatio();
+		void Stop();
 		~SolarSystem();
 	};
 

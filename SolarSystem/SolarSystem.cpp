@@ -7,9 +7,11 @@ DWORD WINAPI SS::SolarSystem::SolarSystemThread(LPVOID lpParam)
 	SS::SolarSystem::SolarSystemObject inst = *(SS::SolarSystem::SolarSystemObject*)(lpParam);
 	while (1)
 	{
+		WaitForSingleObject(inst.instance->hEventStop, INFINITE);
 		WaitForSingleObject(inst.instance->hSemaphoreRecalc, INFINITE);
 		inst.instance->theSystem[inst.name].Next();
 		PostThreadMessage(inst.instance->SyncThreadId, WM_RECALC_OK, 0, 0);
+
 	}
 	return 0;
 }
@@ -17,11 +19,18 @@ DWORD WINAPI SS::SolarSystem::SolarSystemThread(LPVOID lpParam)
 DWORD WINAPI SS::SolarSystem::SolarSystemThreadSync(LPVOID lpParam)
 {
 	MSG msg;
+	bool fl = 0;
 	PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
 	SS::SolarSystem::SolarSystemObject inst = *(SS::SolarSystem::SolarSystemObject*)(lpParam);
 	while (1)
 	{
 		Sleep(60);
+		if (fl == 1)
+		{
+			Sleep(2000);
+			SetEvent(inst.instance->hEventStop);
+			fl = 0;
+		}
 		ReleaseSemaphore(inst.instance->hSemaphoreRecalc, inst.instance->theSystem.size() - 1, NULL);
 		inst.instance->theSystem[inst.name].Next();
 		int i = 0;
@@ -35,6 +44,12 @@ DWORD WINAPI SS::SolarSystem::SolarSystemThreadSync(LPVOID lpParam)
 			GetMessage(&msg, 0, 0, 0);
 			if (msg.message == WM_RECALC_OK)
 				i++;
+			if (msg.message == WM_STOP)
+			{
+				fl = 1;
+				ResetEvent(inst.instance->hEventStop);
+			}
+				
 		}
 		PostMessage(inst.instance->hWindow, WM_REPAINT, 0, 0);
 	}
@@ -108,6 +123,7 @@ SS::SolarSystem::SolarSystemObject* SS::SolarSystem::Get()
 void SS::SolarSystem::Go()
 {
 	this->hSemaphoreRecalc = CreateSemaphore(NULL, 0, this->theSystem.size() - 1, TEXT("SemaphoreForRecalc"));
+	this->hEventStop = CreateEvent(NULL, true, true, TEXT("EventStop"));
 	std::map<std::string, SS::SolarSystem::SolarSystemObject>::iterator it = this->theSystem.begin(), it_end = this->theSystem.end();
 	for (; it != it_end; ++it)
 	{
@@ -154,6 +170,11 @@ void SS::SolarSystem::IsometricAngleInc(float ratioInc)
 	{
 		it->second.SetIsometricRatio(this->isometricRatio);
 	}
+}
+
+void SS::SolarSystem::Stop()
+{
+	PostThreadMessage(this->SyncThreadId, WM_STOP, 0, 0);
 }
 
 float SS::SolarSystem::GetSpeedRatio()

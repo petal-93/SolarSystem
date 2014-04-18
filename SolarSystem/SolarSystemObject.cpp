@@ -29,12 +29,17 @@ SSO::SolarSystemObject::SolarSystemObject(int apoapsis, int periapsis,
 int SSO::SolarSystemObject::GetX() const
 {
 	/*!!*/
-	return this->x + this->apoapsis;
+	return this->x +this->apoapsis;
 }
 
 int SSO::SolarSystemObject::GetY() const
 {
 	return this->y;
+}
+
+float SSO::SolarSystemObject::GetT() const
+{
+	return this->t;
 }
 
 int SSO::SolarSystemObject::GetA() const

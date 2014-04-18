@@ -69,6 +69,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	{
 		DoubleBuffering->Paint();
 		UpdateValues(SolarSystem);
+		if 	((fabs(((3.141592653 * 2 - SolarSystem->Get("Earth")->GetT()) - (3.141592653 - SolarSystem->Get("Moon")->GetT())))<0.03)||
+			(fabs(((3.141592653 * 2 - SolarSystem->Get("Moon")->GetT()) - (3.141592653 - SolarSystem->Get("Earth")->GetT())))<0.03))
+			{
+				SolarSystem->Stop();
+				// окно паузы
+				int msgboxID = MessageBox(NULL, (LPCWSTR)L"Затмение!", (LPCWSTR)L"Затмение", MB_ICONWARNING);
+			
+			}
 	}
 		break;
 	case WM_DESTROY:

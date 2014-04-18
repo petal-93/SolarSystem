@@ -78,6 +78,7 @@ namespace SSO
 		float GetSizeRatio() const;
 		float GetDistanceRatio() const;
 		float GetIsometricRatio() const;
+		float GetT() const;
 		/// <summary> Установить коэффицент скорости </summary>
 		/// <param name = "ratio"> коэффициент в процентах </param>
 		void SetSpeedRatio(float ratio);
